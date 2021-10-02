@@ -13,7 +13,7 @@ import styled from "https://cdn.esm.sh/styled-components";
 import { Button, Typography, Space } from "https://cdn.esm.sh/antd";
 
 import "https://unpkg.com/antd/dist/antd.css"
-import "https://cdn.esm.sh/reset.css"
+import "https://unpkg.com/reset.css"
 
 const Component = () => {
   const [count, setCount] = useState(0);
