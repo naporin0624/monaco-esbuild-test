@@ -38,6 +38,7 @@ const Container = styled.div\`
   background: white;
   padding: 0.5rem 1rem;
   box-sizing: border-box;
+  overflow-y: scroll;
 \`;
 `;
 
