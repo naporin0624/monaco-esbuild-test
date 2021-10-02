@@ -1,41 +1,143 @@
-import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { memo, useCallback, useState, VFC } from "https://cdn.esm.sh/react";
+import styled from "https://cdn.esm.sh/styled-components";
+import MountEditor from "./Editor";
+import * as esbuild from "esbuild-wasm";
+import { SourceCode } from "./SourceCode";
+import tsxEditor from "./editors/tsx";
+import model from "./editors/model";
 
-interface AppProps {}
+import type { IKeyboardEvent } from "monaco-editor";
 
-function App({}: AppProps) {
-  // Create the count state.
+const localTyping = `
+type VFC<T> = (props: T) => JSX.Element | null;
+type Lib = {
+  React: typeof import("react");
+  styled: typeof import("styled-components")["default"];
+};
+type RemoteCodeContext<P> = {
+  props: P;
+};
+
+type RemoteCode<T, P> = {
+  component: VFC<T>;
+  setup: () => Promise<P>;
+};
+type RemoteCodeFactory = <T, P>(callback: (libs: Lib, context: RemoteCodeContext<P>) => RemoteCode<T, P>) => Promise<VFC<T>>;
+
+declare const remoteCodeFactory: RemoteCodeFactory;
+`;
+
+const source = `import React, { useState } from "https://cdn.esm.sh/react";
+import styled from "https://cdn.esm.sh/styled-components";
+import { Table } from "https://cdn.esm.sh/antd";
+import "https://cdn.esm.sh/antd/dist/antd.css";
+
+const Component = () => {
   const [count, setCount] = useState(0);
-  // Create the counter (+1 every second).
-  useEffect(() => {
-    const timer = setTimeout(() => setCount(count + 1), 1000);
-    return () => clearTimeout(timer);
-  }, [count, setCount]);
-  // Return the App component.
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <p>
-          Page has been open for <code>{count}</code> seconds.
-        </p>
-        <p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </p>
-      </header>
+    <div>
+      <p>count: {count}</p>
     </div>
-  );
+  )
 }
 
-export default App;
+export default Component;
+`;
+model.tsx.index.setValue(source);
+
+const App: VFC = () => {
+  const [result, setResult] = useState<esbuild.TransformResult | null>(null);
+  const onDidMount = useCallback(() => {
+    const deps = ["antd", "@types/react", "@types/styled-components"];
+    tsxEditor.deps.install(deps);
+    tsxEditor.format();
+  }, []);
+  const build = useCallback(async () => {
+    const source = model.tsx.index.getValue();
+    const result = await esbuild.transform(source, {
+      format: "esm",
+      loader: "tsx",
+      target: "esnext",
+    });
+    setResult(result);
+  }, []);
+  const onSave = useCallback(
+    (e: IKeyboardEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      tsxEditor.format();
+      build();
+    },
+    [build],
+  );
+
+  return (
+    <Container>
+      <EditZone>
+        <MountEditor factory={tsxEditor.factory} onDidMount={onDidMount} onSave={onSave} />
+        <Build onClick={build}>build</Build>
+      </EditZone>
+      <Console>
+        <Result>{result?.code && <SourceCode source={result?.code} />}</Result>
+        <Log>
+          <p>{result?.code}</p>
+        </Log>
+      </Console>
+    </Container>
+  );
+};
+
+export default memo(App);
+
+const Container = styled.div`
+  height: 100%;
+  width: 100%;
+`;
+const Console = styled.div`
+  height: 30%;
+  width: 100%;
+  display: flex;
+  border-top: solid 1px white;
+  box-sizing: border-box;
+  background: #222222;
+`;
+
+const Result = styled.div`
+  height: 100%;
+  width: 60%;
+  box-sizing: border-box;
+  padding: 0.5rem;
+  color: white;
+`;
+const Log = styled.div`
+  & > p {
+    white-space: pre-wrap;
+    overflow-y: scroll;
+    height: 100%;
+    line-height: 1.2;
+    letter-spacing: 1.2x;
+  }
+  border-left: solid 1px white;
+  height: 100%;
+  width: 40%;
+  box-sizing: border-box;
+  color: white;
+  padding: 0.5rem;
+`;
+
+const EditZone = styled.div`
+  height: 70%;
+  width: 100%;
+  position: relative;
+`;
+const Build = styled.button`
+  outline: none;
+  border: none;
+  background: white;
+  width: 124px;
+  height: 32px;
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+`;

@@ -1,17 +1,18 @@
 /** @type {import("snowpack").SnowpackUserConfig } */
 export default {
   mount: {
-    public: { url: '/', static: true },
-    src: { url: '/dist' },
+    public: { url: "/", static: true },
+    src: { url: "/dist" },
+    packages: { url: "/packages" },
   },
   plugins: [
-    '@snowpack/plugin-react-refresh',
-    '@snowpack/plugin-dotenv',
+    "@snowpack/plugin-react-refresh",
+    "@snowpack/plugin-dotenv",
     [
-      '@snowpack/plugin-typescript',
+      "@snowpack/plugin-typescript",
       {
         /* Yarn PnP workaround: see https://www.npmjs.com/package/@snowpack/plugin-typescript */
-        ...(process.versions.pnp ? { tsc: 'yarn pnpify tsc' } : {}),
+        ...(process.versions.pnp ? { tsc: "yarn pnpify tsc" } : {}),
       },
     ],
   ],
@@ -27,9 +28,13 @@ export default {
     /* ... */
   },
   devOptions: {
-    /* ... */
+    hmrErrorOverlay: false 
   },
   buildOptions: {
     /* ... */
+  },
+  alias: {
+    "~": "./src/",
+    "react-resource": "./packages/react-resource/index.ts",
   },
 };

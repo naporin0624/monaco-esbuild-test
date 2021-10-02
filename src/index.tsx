@@ -1,17 +1,21 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './App';
-import './index.css';
+import React, { lazy, Suspense } from "https://cdn.esm.sh/react";
+import ReactDOM from "https://cdn.esm.sh/react-dom";
+import "reset-css";
+import "./adapter/remoteCode";
+import "./adapter/esbuild";
 
+await import("./adapter/monaco").then((r) => r.default);
+
+const App = lazy(() => import("./App"));
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <Suspense fallback={null}>
+      <App />
+    </Suspense>
   </React.StrictMode>,
-  document.getElementById('root'),
+  document.getElementById("root"),
 );
 
-// Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
-// Learn more: https://snowpack.dev/concepts/hot-module-replacement
 if (import.meta.hot) {
-  import.meta.hot.accept();
+  import.meta.hot.decline();
 }
