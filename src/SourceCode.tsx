@@ -13,7 +13,8 @@ type PickProps<T extends string> = T extends string & infer U
   : Record<string, unknown>;
 
 const resource = createResource(async (source: string) => {
-  const src = URL.createObjectURL(new Blob([source], { type: "text/javascript" }));
+  const blob = new Blob([source], { type: "text/javascript" });
+  const src = URL.createObjectURL(blob);
   const Component: Promise<VFC> = await import(src).then((r) => r.default);
   return Component;
 });

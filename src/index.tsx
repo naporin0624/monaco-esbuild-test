@@ -1,7 +1,6 @@
 import React, { lazy, Suspense } from "https://cdn.esm.sh/react";
 import ReactDOM from "https://cdn.esm.sh/react-dom";
 import "reset-css";
-import "./adapter/remoteCode";
 import "./adapter/esbuild";
 import "./adapter/loadcss";
 
