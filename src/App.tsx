@@ -37,6 +37,7 @@ const Container = styled.div\`
   height: 100%;
   background: white;
   padding: 0.5rem 1rem;
+  box-sizing: border-box;
 \`;
 `;
 
