@@ -83,7 +83,7 @@ const App: VFC = () => {
     <Container>
       <EditZone>
         <MountEditor factory={tsxEditor.factory} onDidMount={onDidMount} onSave={onSave} />
-        <Build onClick={build}>build</Build>
+        <Build onClick={build}>build & run</Build>
       </EditZone>
       <Console>
         <Result>{result?.code && <SourceCode source={result?.code} />}</Result>
