@@ -3,6 +3,7 @@ import ReactDOM from "https://cdn.esm.sh/react-dom";
 import "reset-css";
 import "./adapter/remoteCode";
 import "./adapter/esbuild";
+import "./adapter/loadcss";
 
 await import("./adapter/monaco").then((r) => r.default);
 

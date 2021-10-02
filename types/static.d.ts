@@ -59,25 +59,11 @@ declare module "*.png" {
 /* CUSTOM: ADD YOUR OWN HERE */
 
 import type MonacoEditor from "monaco-editor";
-type VFC<T> = (props: T) => JSX.Element | null;
-type Lib = {
-  React: typeof import("react");
-  styled: typeof import("styled-components")["default"];
-};
-type RemoteCodeContext = {
-  //
-};
-
-type RemoteCode<T> = {
-  component: VFC<T>;
-  setup: () => Promise<void>;
-};
-type RemoteCodeFactory = <T>(callback: (libs: Lib, context: RemoteCodeContext) => RemoteCode<T>) => Promise<VFC<T>>;
 declare global {
   const Monaco: typeof MonacoEditor;
 
   interface Window {
     Monaco: typeof MonacoEditor;
-    remoteCodeFactory: RemoteCodeFactory;
+    loadcss: (content: string) => Promise<void>;
   }
 }

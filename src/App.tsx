@@ -65,16 +65,7 @@ const App: VFC = () => {
 
     result.code = result.code.replace(
       /import ["|'](https?:\/\/[\w/:%#\\$&\\?\\(\\)~\\.=\\+\\-]+.css)["|'];/g,
-      `
-      if (!document.head.querySelector('link[href="$1"')) {
-        document.head.appendChild((() => {
-          const link = document.createElement("link");
-          link.rel = "stylesheet"
-          link.href = "$1";
-          return link;
-        })());
-      }
-    `,
+      "window.loadcss('$1');",
     );
     setResult(result);
   }, []);
