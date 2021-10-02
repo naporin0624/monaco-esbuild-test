@@ -8,42 +8,38 @@ import model from "./editors/model";
 
 import type { IKeyboardEvent } from "monaco-editor";
 
-const localTyping = `
-type VFC<T> = (props: T) => JSX.Element | null;
-type Lib = {
-  React: typeof import("react");
-  styled: typeof import("styled-components")["default"];
-};
-type RemoteCodeContext<P> = {
-  props: P;
-};
-
-type RemoteCode<T, P> = {
-  component: VFC<T>;
-  setup: () => Promise<P>;
-};
-type RemoteCodeFactory = <T, P>(callback: (libs: Lib, context: RemoteCodeContext<P>) => RemoteCode<T, P>) => Promise<VFC<T>>;
-
-declare const remoteCodeFactory: RemoteCodeFactory;
-`;
-
 const source = `import React, { useState } from "https://cdn.esm.sh/react";
 import styled from "https://cdn.esm.sh/styled-components";
-import { Table } from "https://cdn.esm.sh/antd";
-import "https://cdn.esm.sh/antd/dist/antd.css";
+import { Button, Typography, Space } from "https://cdn.esm.sh/antd";
+
+import "https://cdn.esm.sh/antd/dist/antd.css"
+import "https://cdn.esm.sh/reset.css"
 
 const Component = () => {
   const [count, setCount] = useState(0);
-
   return (
-    <div>
-      <p>count: {count}</p>
-    </div>
+    <Container>
+      <Typography.Title>ESBuild & Monaco-Editor</Typography.Title>
+      <Space>
+        <Typography.Text>count: {count}</Typography.Text>
+        <Button size="small" type="primary" onClick={() => setCount(c => c + 1)}>+</Button>
+        <Button size="small" onClick={() => setCount(c => c - 1)}>-</Button>
+      </Space>
+    </Container>
   )
 }
 
 export default Component;
+
+
+const Container = styled.div\`
+  width: 100%;
+  height: 100%;
+  background: white;
+  padding: 0.5rem 1rem;
+\`;
 `;
+
 model.tsx.index.setValue(source);
 
 const App: VFC = () => {
@@ -60,6 +56,25 @@ const App: VFC = () => {
       loader: "tsx",
       target: "esnext",
     });
+    result.code = result.code.replace(
+      /from ["|'](https?:\/\/[\w/:%#\\$&\\?\\(\\)~\\.=\\+\\-]+)["|'];/g,
+      `from "$1?bundle"`,
+    );
+    result.code = result.code.replace("react?bundle", "react");
+
+    result.code = result.code.replace(
+      /import ["|'](https?:\/\/[\w/:%#\\$&\\?\\(\\)~\\.=\\+\\-]+.css)["|'];/g,
+      `
+      if (!document.head.querySelector('link[href="$1"')) {
+        document.head.appendChild((() => {
+          const link = document.createElement("link");
+          link.rel = "stylesheet"
+          link.href = "$1";
+          return link;
+        })());
+      }
+    `,
+    );
     setResult(result);
   }, []);
   const onSave = useCallback(
@@ -140,4 +155,5 @@ const Build = styled.button`
   position: absolute;
   bottom: 24px;
   right: 24px;
+  cursor: pointer;
 `;

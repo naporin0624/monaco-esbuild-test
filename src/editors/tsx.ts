@@ -9,7 +9,10 @@ Monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
   target: Monaco.languages.typescript.ScriptTarget.ESNext,
   module: Monaco.languages.typescript.ModuleKind.ESNext,
   baseUrl: ".",
-  paths: { "*": ["types/*"], "https://cdn.esm.sh/*": ["file:///node_modules/*", "file:///node_modules/@types/*"] },
+  paths: {
+    "*": ["types/*"],
+    "https://cdn.esm.sh/*": ["file:///node_modules/*", "file:///node_modules/@types/*"],
+  },
   strict: true,
   moduleResolution: Monaco.languages.typescript.ModuleResolutionKind.NodeJs,
   allowSyntheticDefaultImports: true,
