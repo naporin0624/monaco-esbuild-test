@@ -12,7 +12,7 @@ const source = `import React, { useState } from "https://cdn.esm.sh/react";
 import styled from "https://cdn.esm.sh/styled-components";
 import { Button, Typography, Space } from "https://cdn.esm.sh/antd";
 
-import "https://cdn.esm.sh/antd/dist/antd.css"
+import "https://unpkg.com/antd/dist/antd.css"
 import "https://cdn.esm.sh/reset.css"
 
 const Component = () => {
